@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist } from '../redux/slices/wishlistSlice';
+import { addToCart } from '../redux/slices/cartSlice';
 
 const View = () => {
+  const userCart = useSelector((state) => state.cartReducer);
+  const dispatch = useDispatch()
+  const userWishlist = useSelector(state=>state.wishlistReducer)
   const [product, setProduct] = useState({});
   const { id } = useParams();
   console.log(id);
@@ -18,6 +23,25 @@ const View = () => {
     }
   }, []);
 
+  const handleWishhlist = () =>{
+    const existingProduct =  userWishlist?.find(item=>item.id == id)
+    if(existingProduct){
+      alert('Product already exisits in Wishlist!!!')
+    }else{
+      dispatch(addToWishlist(product))
+    }
+  }
+
+   const handleCart = () => {
+    dispatch(addToCart(product))
+     const existingProduct = userCart?.find((item) => item.id == id);
+     if (existingProduct) {
+       alert('Product quantity incremeneted!!!');
+     } else {
+        alert('Product added to cart');
+     }
+   };
+
   return (
     <>
       <Header />
@@ -31,10 +55,16 @@ const View = () => {
               alt=""
             />
             <div className="flex items-center  mt-5">
-              <button className="bg-blue-600 rounded mx-5 text-white p-2">
+              <button
+                onClick={() => handleWishhlist()}
+                className="bg-blue-600 rounded mx-5 text-white p-2"
+              >
                 Add to wishlist
               </button>
-              <button className="bg-green-600 rounded mx-5 text-white p-2">
+              <button
+                onClick={() => handleCart()}
+                className="bg-green-600 rounded mx-5 text-white p-2"
+              >
                 Add to cart
               </button>
             </div>
@@ -51,20 +81,23 @@ const View = () => {
               <span className="font-bold">Description</span>:{' '}
               {product?.description}
             </p>
-            <h3 className='font-bold mt-4'>Client Reviews</h3>
-            {
-              product?.reviews?.length > 0 ?
-              product?.reviews?.map(item=>(
-                <div key={item.date} className='shadow border rounded p-2 mb-2'>
-                  <h5><span className='font-bold'>{item?.reviewerName}</span>:<span>{item?.comment}</span></h5>
-                  <p>Rating: {item?.rating} <i className='fa-solid fa-star text-yellow-400'> </i></p>
+            <h3 className="font-bold mt-4">Client Reviews</h3>
+            {product?.reviews?.length > 0 ? (
+              product?.reviews?.map((item) => (
+                <div key={item.date} className="shadow border rounded p-2 mb-2">
+                  <h5>
+                    <span className="font-bold">{item?.reviewerName}</span>:
+                    <span>{item?.comment}</span>
+                  </h5>
+                  <p>
+                    Rating: {item?.rating}{' '}
+                    <i className="fa-solid fa-star text-yellow-400"> </i>
+                  </p>
                 </div>
               ))
-              :
-              <div className='font-bolder text-red-600'>
-                No Reviews Yet!!!
-              </div>
-            }
+            ) : (
+              <div className="font-bolder text-red-600">No Reviews Yet!!!</div>
+            )}
           </div>
         </div>
       </div>
